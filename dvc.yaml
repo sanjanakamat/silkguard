@@ -1,0 +1,14 @@
+stages:
+  ingestion:
+    cmd: python src/pipelines/ingestion.py
+    deps:
+    - src/pipelines/ingestion.py
+    outs:
+    - data/raw
+  preprocessing:
+    cmd: python src/pipelines/preprocessing.py
+    deps:
+    - data/raw
+    - src/pipelines/preprocessing.py
+    outs:
+    - data/processed

@@ -1,0 +1,33 @@
+schema: '2.0'
+stages:
+  ingestion:
+    cmd: python src/pipelines/ingestion.py
+    deps:
+    - path: src/pipelines/ingestion.py
+      hash: md5
+      md5: 3fb0eb3644c6ac4a442d93e0e7780005
+      size: 673
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 9360ae5984c29667f32ba17b9dedb7f6.dir
+      size: 440997159
+      nfiles: 9975
+  preprocessing:
+    cmd: python src/pipelines/preprocessing.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 9360ae5984c29667f32ba17b9dedb7f6.dir
+      size: 440997159
+      nfiles: 9975
+    - path: src/pipelines/preprocessing.py
+      hash: md5
+      md5: a512763af8bf16f6f48aed3c11c3d7fd
+      size: 711
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: dc170d33ed678b6207c0e3e269a5894b.dir
+      size: 396875503
+      nfiles: 3989
