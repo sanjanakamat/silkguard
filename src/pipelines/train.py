@@ -6,10 +6,8 @@ import torch
 from ultralytics import YOLO
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
-# 🔁 Reproducibility
 def set_seed(seed=42):
     random.seed(seed)
     np.random.seed(seed)
@@ -17,17 +15,18 @@ def set_seed(seed=42):
 
 def train_model():
     set_seed()
-    mlflow.set_tracking_uri("file:///D:/silkguard/runs/mlflow")
+    
+    # 🔥 DYNAMIC PATH: Works on Windows (D:/) and Colab (/content/)
+    # It will save inside your project folder under 'mlruns'
+    project_root = os.getcwd()
+    mlflow_path = f"file:///{project_root}/mlruns"
+    mlflow.set_tracking_uri(mlflow_path)
 
-    # 1. MLflow Experiment
     mlflow.set_experiment("SilkGuard_Disease_Detection")
 
     with mlflow.start_run():
-
-        # 2. Load Model (Better than nano)
         model = YOLO("yolov8s.pt")
 
-        # 3. Parameters
         params = {
             "epochs": 50,
             "imgsz": 640,
@@ -37,37 +36,26 @@ def train_model():
             "optimizer": "AdamW",
             "model": "yolov8s"
         }
-
         mlflow.log_params(params)
 
-        # 4. Training
         print("🚀 Training starting...")
-
         results = model.train(
-            data="config/data.yaml",   # <-- dataset defined here
+            data="config/data.yaml",
             epochs=params["epochs"],
             imgsz=params["imgsz"],
             batch=params["batch"],
             patience=params["patience"],
             lr0=params["lr0"],
             optimizer=params["optimizer"],
-
             # 🔥 Augmentation
-            hsv_h=0.015,
-            hsv_s=0.7,
-            hsv_v=0.4,
-            degrees=10,
-            translate=0.1,
-            scale=0.5,
-            fliplr=0.5
+            hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
+            degrees=10, translate=0.1, scale=0.5, fliplr=0.5
         )
 
         print("📊 Logging metrics...")
-
-        # 5. Extract Metrics
         try:
+            # YOLOv8 stores results in a results_dict
             metrics = results.results_dict
-
             mlflow.log_metrics({
                 "precision": metrics.get("metrics/precision(B)", 0),
                 "recall": metrics.get("metrics/recall(B)", 0),
@@ -78,17 +66,19 @@ def train_model():
             print("⚠️ Could not log metrics:", e)
 
         # 6. Log Model + Artifacts
+        # Note: YOLOv8 might create 'runs/detect/train2', 'train3', etc.
+        # This points to the latest 'train' folder
         base_path = "runs/detect/train"
 
-        mlflow.log_artifact(f"{base_path}/weights/best.pt")
+        if os.path.exists(f"{base_path}/weights/best.pt"):
+            mlflow.log_artifact(f"{base_path}/weights/best.pt")
 
-        # Optional but useful
         for file in ["results.png", "confusion_matrix.png", "labels.jpg"]:
             file_path = f"{base_path}/{file}"
             if os.path.exists(file_path):
                 mlflow.log_artifact(file_path)
 
-        print("✅ Training complete. Everything logged to MLflow.")
+        print(f"✅ Training complete. Everything logged to: {mlflow_path}")
 
 if __name__ == "__main__":
     train_model()
