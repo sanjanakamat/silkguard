@@ -12,3 +12,10 @@ stages:
     - src/pipelines/preprocessing.py
     outs:
     - data/processed
+  train:
+    cmd: python src/pipelines/train.py
+    deps:
+    - data/processed
+    - src/pipelines/train.py
+    outs:
+    - runs/detect/train

@@ -1,0 +1,4 @@
+[core]
+    remote = storage
+['remote "storage"']
+    url = s3://silkguard-data-sanjana-2026-067103977937-ap-southeast-2-an/data

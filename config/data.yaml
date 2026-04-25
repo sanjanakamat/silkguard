@@ -1,0 +1,10 @@
+path: D:/silkguard/data/processed   # root path of the dataset
+
+train: train/images                 # training images
+val: valid/images                   # validation images
+
+nc: 2                               # number of classes
+
+names:
+  - Grasserie
+  - Healthy

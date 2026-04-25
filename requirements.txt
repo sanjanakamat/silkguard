@@ -1,0 +1,9 @@
+ultralytics      # For YOLOv8
+dvc              # For Data Version Control
+dvc-s3           # To connect DVC to cloud storage
+mlflow           # To track our experiments
+fastapi          # To serve our model
+uvicorn          # To run the API
+pytest           # For testing
+python-dotenv
+roboflow
