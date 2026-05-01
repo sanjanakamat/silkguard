@@ -3,14 +3,13 @@ import mlflow
 import random
 import numpy as np
 import torch
-from ultralytics import YOLO
+from ultralytics import YOLO, settings
 from dotenv import load_dotenv
 
+
+settings.update({"mlflow": False})
+
 load_dotenv()
-
-
-mlflow.set_tracking_uri("file:///content/mlruns")
-mlflow.set_experiment("SilkGuard")
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -19,9 +18,8 @@ def set_seed(seed=42):
 
 def train_model():
     set_seed()
-    
-    # 🔥 DYNAMIC PATH: Works on Windows (D:/) and Colab (/content/)
-    # It will save inside your project folder under 'mlruns'
+
+    # 🔹 Dynamic MLflow path (works in Colab + local)
     project_root = os.getcwd()
     mlflow_path = f"file:///{project_root}/mlruns"
     mlflow.set_tracking_uri(mlflow_path)
@@ -29,8 +27,10 @@ def train_model():
     mlflow.set_experiment("SilkGuard_Disease_Detection")
 
     with mlflow.start_run():
+
         model = YOLO("yolov8s.pt")
 
+        # 🔹 Parameters
         params = {
             "epochs": 50,
             "imgsz": 640,
@@ -40,9 +40,11 @@ def train_model():
             "optimizer": "AdamW",
             "model": "yolov8s"
         }
+
         mlflow.log_params(params)
 
         print("🚀 Training starting...")
+
         results = model.train(
             data="config/data.yaml",
             epochs=params["epochs"],
@@ -51,15 +53,23 @@ def train_model():
             patience=params["patience"],
             lr0=params["lr0"],
             optimizer=params["optimizer"],
+
             # 🔥 Augmentation
-            hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
-            degrees=10, translate=0.1, scale=0.5, fliplr=0.5
+            hsv_h=0.015,
+            hsv_s=0.7,
+            hsv_v=0.4,
+            degrees=10,
+            translate=0.1,
+            scale=0.5,
+            fliplr=0.5
         )
 
         print("📊 Logging metrics...")
+
+        # 🔹 Safe metric logging
         try:
-            # YOLOv8 stores results in a results_dict
             metrics = results.results_dict
+
             mlflow.log_metrics({
                 "precision": metrics.get("metrics/precision(B)", 0),
                 "recall": metrics.get("metrics/recall(B)", 0),
@@ -67,22 +77,25 @@ def train_model():
                 "mAP50-95": metrics.get("metrics/mAP50-95(B)", 0)
             })
         except Exception as e:
-            print("⚠️ Could not log metrics:", e)
+            print("⚠️ Metric logging failed:", e)
 
-        # 6. Log Model + Artifacts
-        # Note: YOLOv8 might create 'runs/detect/train2', 'train3', etc.
-        # This points to the latest 'train' folder
-        base_path = "runs/detect/train"
+        # 🔹 Correct save directory (VERY IMPORTANT FIX)
+        save_dir = results.save_dir
 
-        if os.path.exists(f"{base_path}/weights/best.pt"):
-            mlflow.log_artifact(f"{base_path}/weights/best.pt")
+        print(f"📂 Saving artifacts from: {save_dir}")
 
+        # 🔹 Log best model
+        best_model_path = os.path.join(save_dir, "weights", "best.pt")
+        if os.path.exists(best_model_path):
+            mlflow.log_artifact(best_model_path)
+
+        # 🔹 Log useful plots
         for file in ["results.png", "confusion_matrix.png", "labels.jpg"]:
-            file_path = f"{base_path}/{file}"
+            file_path = os.path.join(save_dir, file)
             if os.path.exists(file_path):
                 mlflow.log_artifact(file_path)
 
-        print(f"✅ Training complete. Everything logged to: {mlflow_path}")
+        print(f"✅ Training complete. Logged to: {mlflow_path}")
 
 if __name__ == "__main__":
     train_model()
