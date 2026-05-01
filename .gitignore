@@ -6,3 +6,4 @@ models/*.pt
 .env
 *.pt
 mlflow.db
+/data.zip
