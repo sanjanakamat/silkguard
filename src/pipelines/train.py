@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
+mlflow.set_tracking_uri("file:///content/mlruns")
+mlflow.set_experiment("SilkGuard")
+
 def set_seed(seed=42):
     random.seed(seed)
     np.random.seed(seed)
