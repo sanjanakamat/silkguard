@@ -1,4 +1,4 @@
-path: D:/silkguard/data/processed   # root path of the dataset
+path: /content/silkguard/data/processed   # root path of the dataset
 
 train: train/images                 # training images
 val: valid/images                   # validation images
