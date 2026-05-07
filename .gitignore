@@ -7,3 +7,5 @@ models/*.pt
 *.pt
 mlflow.db
 /data.zip
+runs/
+mlruns/
