@@ -7,3 +7,4 @@ uvicorn          # To run the API
 pytest           # For testing
 python-dotenv
 roboflow
+python-multipart

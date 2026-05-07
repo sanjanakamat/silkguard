@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilkGuard - Object Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>SilkGuard<span class="dot">.</span></h1>
+            <p>AI-Powered Object Detection API Interface</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="drop-zone" id="drop-zone">
+                    <span class="drop-zone__prompt">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16V8M12 8L9 11M12 8L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 16.5C4 18.433 5.567 20 7.5 20H16.5C18.433 20 20 18.433 20 16.5C20 14.8878 18.887 13.5358 17.3751 13.1232C17.4571 12.7667 17.5 12.3908 17.5 12C17.5 8.96243 15.0376 6.5 12 6.5C9.37895 6.5 7.18568 8.32832 6.6433 10.7845C6.18244 10.6019 5.67919 10.5 5.15 10.5C3.4103 10.5 2 11.9103 2 13.65C2 15.1105 2.99427 16.3376 4.36449 16.6111" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <br/>
+                        Drag & Drop or Click to Upload
+                    </span>
+                    <input type="file" name="file" id="file-input" class="drop-zone__input" accept="image/*">
+                </div>
+            </div>
+
+            <div class="results-section" id="results-section" style="display: none;">
+                <div class="image-preview">
+                    <img id="preview-img" src="" alt="Uploaded Preview">
+                    <div class="overlay" id="loading-overlay">
+                        <div class="spinner"></div>
+                        <p>Analyzing...</p>
+                    </div>
+                </div>
+                
+                <div class="predictions-card" id="predictions-card">
+                    <h2>Detection Results</h2>
+                    <div id="predictions-list" class="predictions-list">
+                        <!-- Predictions will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
