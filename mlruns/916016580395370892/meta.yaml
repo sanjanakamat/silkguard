@@ -1,8 +1,0 @@
-artifact_location: file:////content/silkguard/mlruns/916016580395370892
-creation_time: 1777885509343
-experiment_id: '916016580395370892'
-last_update_time: 1777885509343
-lifecycle_stage: active
-name: SilkGuard_Disease_Detection
-trace_location: null
-workspace: default

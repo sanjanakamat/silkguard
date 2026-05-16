@@ -6,9 +6,8 @@ from ultralytics import YOLO
 import shutil
 import os
 
-app = FastAPI()
+app = FastAPI(title="SilkGuard API")
 
-# 🔹 Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,11 +16,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔹 Serve Frontend Files
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
-# 🔹 Load your trained model
-model = YOLO("runs/detect/train-2/weights/best.pt")
+# load weights
+try:
+    model_path = "runs/detect/train-2/weights/best.pt"
+    if not os.path.exists(model_path):
+        print(f"model weights not found at {model_path}")
+        model = None
+    else:
+        model = YOLO(model_path)
+except Exception as e:
+    print(f"failed to load model: {e}")
+    model = None
 
 @app.get("/")
 def home():
@@ -29,30 +36,30 @@ def home():
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
-    
-    # 🔹 Save uploaded file temporarily
+    if model is None:
+        return {"error": "model not loaded"}
+
     temp_path = f"temp_{file.filename}"
     
     with open(temp_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # 🔹 Run prediction
-    results = model.predict(source=temp_path, conf=0.25)
+    try:
+        # run inference
+        results = model.predict(source=temp_path, conf=0.25)
 
-    # 🔹 Extract results
-    predictions = []
-    
-    for r in results:
-        for box in r.boxes:
-            cls = int(box.cls[0])
-            conf = float(box.conf[0])
-            
-            predictions.append({
-                "class": model.names[cls],
-                "confidence": round(conf, 3)
-            })
-
-    # 🔹 Remove temp file
-    os.remove(temp_path)
+        predictions = []
+        for r in results:
+            for box in r.boxes:
+                cls = int(box.cls[0])
+                conf = float(box.conf[0])
+                
+                predictions.append({
+                    "class": model.names[cls],
+                    "confidence": round(conf, 3)
+                })
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
     return {"predictions": predictions}

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const predictionsList = document.getElementById('predictions-list');
 
     // API Endpoint (Make sure your FastAPI server is running on this port)
-    const API_URL = 'http://localhost:8000/predict/';
+    const API_URL = '/predict/';
 
     // Click to upload
     dropZone.addEventListener('click', () => {
